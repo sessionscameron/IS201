@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Press Start 2P', sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #e0f7fa;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+            max-width: 90%;
+            width: 450px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        h1 {
+            margin-bottom: 1rem;
+            font-size: 2em;
+            color: #2c3e50;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        #gameboard {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .square {
+            width: 100px;
+            height: 100px;
+            font-size: 2.5em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            border: 4px solid #3498db;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: #ffffff;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .square:hover {
+            background-color: #8ee4af;
+            transform: scale(1.05);
+            border-color: #2ecc71;
+        }
+
+        .square.X {
+            color: #e74c3c;
+        }
+
+        .square.O {
+            color: #3498db;
+        }
+
+        #reset-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            color: white;
+            background-color: #3498db;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 0.5rem;
+            font-family: 'Press Start 2P', sans-serif;
+        }
+
+        #reset-button:hover {
+            background-color: #2980b9;
+            transform: scale(1.05);
+        }
+
+        #message-box {
+            margin-top: 1rem;
+            font-size: 1.2em;
+            color: #2c3e50;
+            min-height: 1.5em;
+        }
+
+        #home-link, #food-link {
+            position: absolute;
+            top: 10px;
+            color: #3498db;
+            font-size: 1em;
+            text-decoration: none;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background-color: rgba(255, 255, 255, 0.7);
+        }
+
+        #home-link {
+            right: 100px;
+        }
+
+        #food-link {
+            right: 10px;
+        }
+
+        #home-link:hover, #food-link:hover {
+            background-color: #8ee4af;
+            color: #2c3e50;
+            transform: scale(1.1);
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 16px;
+            }
+            #gameboard {
+                grid-template-columns: repeat(3, 80px);
+                grid-template-rows: repeat(3, 80px);
+            }
+            .square {
+                width: 80px;
+                height: 80px;
+                font-size: 2em;
+            }
+            h1 {
+                font-size: 1.75em;
+            }
+            #message-box {
+                font-size: 1em;
+            }
+            #reset-button{
+                font-size: 0.8em;
+                padding: 8px 16px;
+            }
+            #home-link, #food-link {
+                font-size: 0.7em;
+                padding: 6px;
+            }
+            #home-link {
+                right: 80px;
+            }
+            #food-link {
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body class="bg-light-blue-100 flex items-center justify-center min-h-screen font-sans">
+    <div class="container bg-white rounded-lg shadow-md p-8">
+        <a href="/" id="home-link">Home</a>
+        <a href="/scratch.html" id="food-link">Food</a>
+        <h1 class="text-3xl font-bold mb-4 text-gray-800">Tic-Tac-Toe</h1>
+        <div id="gameboard">
+            <div class="square" id="0"></div>
+            <div class="square" id="1"></div>
+            <div class="square" id="2"></div>
+            <div class="square" id="3"></div>
+            <div class="square" id="4"></div>
+            <div class="square" id="5"></div>
+            <div class="square" id="6"></div>
+            <div class="square" id="7"></div>
+            <div class="square" id="8"></div>
+        </div>
+        <div id="message-box" class="mt-4 text-lg text-gray-700 min-h-[1.5em]"></div>
+        <button id="reset-button" class="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Reset Game</button>
+    </div>
+
+    <script>
+        const squares = document.querySelectorAll('.square');
+        const messageBox = document.getElementById('message-box');
+        const resetButton = document.getElementById('reset-button');
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
+        ];
+
+        let board = ['', '', '', '', '', '', '', '', ''];
+        let playerTurn = 'X';
+        let gameOver = false;
+        let computerMoveTimeout;
+
+        function computerMove() {
+            if (gameOver) return;
+
+            messageBox.textContent = "Computer's turn...";
+
+            if (computerMoveTimeout) {
+                clearTimeout(computerMoveTimeout);
+            }
+
+            computerMoveTimeout = setTimeout(() => {
+                let bestMove = -1;
+                let bestScore = -Infinity;
+
+                for (let i = 0; i < board.length; i++) {
+                    if (board[i] === '') {
+                        board[i] = 'O';
+                        let score = minimax(board, 0, false);
+                        board[i] = '';
+                        if (score > bestScore) {
+                            bestScore = score;
+                            bestMove = i;
+                        }
+                    }
+                }
+
+                if (bestMove !== -1) {
+                    board[bestMove] = 'O';
+                    squares[bestMove].textContent = 'O';
+                    squares[bestMove].classList.add('O');
+                    playerTurn = 'X';
+                    checkForWin();
+                    if (!gameOver) {
+                        messageBox.textContent = "Your turn!";
+                    }
+                }
+                computerMoveTimeout = null;
+            }, 1000);
+        }
+
+        function minimax(currentBoard, depth, isMaximizing) {
+            let scores = {
+                'X': -1,
+                'O': 1,
+                'tie': 0
+            };
+
+            let winner = checkWinner(currentBoard);
+            if (winner !== null) {
+                return scores[winner];
+            }
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < currentBoard.length; i++) {
+                    if (currentBoard[i] === '') {
+                        currentBoard[i] = 'O';
+                        let score = minimax(currentBoard, depth + 1, false);
+                        currentBoard[i] = '';
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < currentBoard.length; i++) {
+                    if (currentBoard[i] === '') {
+                        currentBoard[i] = 'X';
+                        let score = minimax(currentBoard, depth + 1, true);
+                        currentBoard[i] = '';
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function checkWinner(boardToCheck) {
+            for (let pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (boardToCheck[a] && boardToCheck[a] === boardToCheck[b] && boardToCheck[a] === boardToCheck[c]) {
+                    return boardToCheck[a];
+                }
+            }
+
+            if (!boardToCheck.includes('')) {
+                return 'tie';
+            }
+
+            return null;
+        }
+
+        function checkForWin() {
+            const winner = checkWinner(board);
+            if (winner !== null) {
+                gameOver = true;
+                if (winner === 'X') {
+                    messageBox.textContent = "You win!";
+                } else if (winner === 'O') {
+                    messageBox.textContent = "Computer wins!";
+                } else {
+                    messageBox.textContent = "It's a tie!";
+                }
+                if (computerMoveTimeout) {
+                    clearTimeout(computerMoveTimeout);
+                }
+            }
+        }
+
+        function handleClick(squareIndex) {
+            if (gameOver || board[squareIndex] !== '') {
+                return;
+            }
+
+            board[squareIndex] = 'X';
+            squares[squareIndex].textContent = 'X';
+            squares[squareIndex].classList.add('X');
+            playerTurn = 'O';
+            checkForWin();
+
+            if (!gameOver) {
+                computerMove();
+            }
+        }
+
+        function resetGame() {
+            board = ['', '', '', '', '', '', '', '', ''];
+            gameOver = false;
+            playerTurn = Math.random() < 0.5 ? 'X' : 'O';
+            squares.forEach(square => {
+                square.textContent = '';
+                square.classList.remove('X', 'O');
+            });
+            messageBox.textContent = '';
+            if (playerTurn === 'O') {
+                computerMove();
+            } else {
+                messageBox.textContent = "Your turn!";
+            }
+        }
+
+        squares.forEach((square, index) => {
+            square.addEventListener('click', () => handleClick(index));
+        });
+        resetButton.addEventListener('click', resetGame);
+
+        resetGame();
+    </script>
+</body>
+</html>
